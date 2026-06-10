@@ -1,0 +1,53 @@
+# Single entry point so the browser talks to one origin.
+# Frontend uses same-origin /api and /ws paths, routed here to the right service.
+#
+# Requires an ingress-nginx controller (e.g. `minikube addons enable ingress`).
+
+# Frontend (/) and websocket (/ws) — no path rewrite needed.
+# The websocket server reads its token from the query string, so the /ws path is fine.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-web
+  namespace: chat-app
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: websocket
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 4173
+---
+# Backend API (/api) — strip the /api prefix so /api/signup -> /signup.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-api
+  namespace: chat-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 3001

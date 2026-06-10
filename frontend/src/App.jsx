@@ -1,7 +1,10 @@
 import { useState, useRef } from "react";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
-const WS = import.meta.env.VITE_WS_URL || "ws://localhost:8080";
+// Default to same-origin paths (routed by the k8s Ingress to backend/websocket).
+// For local dev, the Docker image is built with VITE_* build args pointing at localhost.
+const wsScheme = location.protocol === "https:" ? "wss" : "ws";
+const BACKEND = import.meta.env.VITE_BACKEND_URL || `${location.origin}/api`;
+const WS = import.meta.env.VITE_WS_URL || `${wsScheme}://${location.host}/ws`;
 
 export default function App() {
   const [username, setUsername] = useState("");
