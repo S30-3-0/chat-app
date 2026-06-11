@@ -1,18 +1,6 @@
 # Persistent storage for Redis.
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: redis-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: /mnt/data/redis
----
+# On DigitalOcean the do-block-storage StorageClass dynamically provisions
+# the underlying volume, so no PersistentVolume needs to be created manually.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -21,10 +9,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: manual
+  storageClassName: do-block-storage
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment

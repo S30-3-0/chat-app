@@ -1,18 +1,17 @@
-# Persistent storage for Postgres.
 apiVersion: v1
-kind: PersistentVolume
+kind: Secret
 metadata:
-  name: postgres-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: /mnt/data/postgres
+  name: postgres-secret
+  namespace: chat-app
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM=
+  POSTGRES_PASSWORD: cG9zdGdyZXM=
+  POSTGRES_DB: Y2hhdA==
 ---
+# Persistent storage for Postgres.
+# On DigitalOcean the do-block-storage StorageClass dynamically provisions
+# the underlying volume, so no PersistentVolume needs to be created manually.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -21,10 +20,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: manual
+  storageClassName: do-block-storage
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment

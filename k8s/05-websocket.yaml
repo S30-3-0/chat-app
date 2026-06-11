@@ -37,14 +37,13 @@ spec:
                   name: app-secret
                   key: DATABASE_URL
 ---
-# Public-facing websocket -> NodePort.
 apiVersion: v1
 kind: Service
 metadata:
   name: websocket
   namespace: chat-app
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: websocket
   ports:
